@@ -199,7 +199,8 @@ interface EvaluationResult {
         → router.navigate(['/exercise'], { state: { difficulty } })
 
 2. ExerciseComponent.ngOnInit
-        → lee difficulty de router.getCurrentNavigation().extras.state
+        → lee difficulty via inject(Location).getState() as { difficulty }
+        → si difficulty es undefined → router.navigate(['/']) (guard implícito)
         → exerciseService.getRandom(difficulty).subscribe(...)
         → almacena en signal<Exercise | null>
 
@@ -260,7 +261,7 @@ interface EvaluationResult {
 - Bordes redondeados: `8px` (cards), `12px` (paneles)
 - Cards de dificultad: borde izquierdo `4px solid` con color del nivel + hover con `box-shadow` sutil
 - Feedback banner: fondo suave (`success/10%` o `error/10%`), ícono grande, texto del campo `feedback` del API
-- Editor CodeMirror: tema `@codemirror/theme-one-dark` en dark, tema claro en light
+- Editor CodeMirror: tema `@codemirror/theme-one-dark` en dark, estilos base de CodeMirror (sin paquete extra) en light
 - Bloques de código SQL en SchemaViewer: `<pre>` con `--bg-editor`, fuente monospace, scroll horizontal
 
 ---
