@@ -45,7 +45,7 @@ export class SqlEditorComponent implements AfterViewInit, OnDestroy {
     this.initialized = true;
   }
 
-  private buildEditor(theme: 'light' | 'dark'): void {
+  private buildEditor(theme: 'light' | 'dark', initialDoc = ''): void {
     const extensions = [
       basicSetup,
       sql(),
@@ -59,7 +59,7 @@ export class SqlEditorComponent implements AfterViewInit, OnDestroy {
     if (theme === 'dark') extensions.push(oneDark);
 
     this.view = new EditorView({
-      state: EditorState.create({ doc: '', extensions }),
+      state: EditorState.create({ doc: initialDoc, extensions }),
       parent: this.editorHost.nativeElement,
     });
   }
@@ -69,10 +69,7 @@ export class SqlEditorComponent implements AfterViewInit, OnDestroy {
     const doc = this.view.state.doc.toString();
     this.view.destroy();
     this.editorHost.nativeElement.innerHTML = '';
-    this.buildEditor(theme);
-    if (doc) {
-      this.view!.dispatch({ changes: { from: 0, insert: doc } });
-    }
+    this.buildEditor(theme, doc);
   }
 
   clear(): void {
