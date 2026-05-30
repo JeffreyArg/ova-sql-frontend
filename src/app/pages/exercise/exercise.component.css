@@ -1,0 +1,14 @@
+.panel-left {
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  .panel-left {
+    width: 40%;
+    max-width: 40%;
+  }
+}
+
+.panel-right {
+  overflow-y: auto;
+}
