@@ -1,0 +1,156 @@
+<div class="d-flex flex-column vh-100">
+
+  <!-- Header -->
+  <nav class="navbar border-bottom px-4 flex-shrink-0">
+    <a class="navbar-brand fw-bold fs-6" routerLink="/">
+      <i class="bi bi-database-fill-gear me-2 text-primary"></i>SQL OVA
+    </a>
+    <div class="ms-3">
+      <span class="badge" [class]="difficultyBadgeClass">{{ difficultyLabel }}</span>
+    </div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <a class="btn btn-outline-secondary btn-sm" routerLink="/">
+        <i class="bi bi-arrow-left me-1"></i>Inicio
+      </a>
+      <button class="btn btn-outline-secondary btn-sm" (click)="themeService.toggle()">
+        <i
+          class="bi"
+          [class.bi-sun-fill]="themeService.theme() === 'dark'"
+          [class.bi-moon-fill]="themeService.theme() === 'light'"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Loading state (initial) -->
+  @if (loading() && !exercise()) {
+    <div class="flex-grow-1 d-flex align-items-center justify-content-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando ejercicio...</span>
+      </div>
+    </div>
+  }
+
+  @if (loadError() && !exercise()) {
+    <div class="flex-grow-1 d-flex align-items-center justify-content-center p-4">
+      <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+        <div>
+          {{ loadError() }}
+          <button type="button" class="btn btn-sm btn-outline-danger ms-3" (click)="loadExercise()">
+            Reintentar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Split layout -->
+  @if (exercise()) {
+    <div class="d-flex flex-grow-1 overflow-hidden flex-column flex-md-row">
+
+      <!-- Left panel: description + schema -->
+      <aside class="panel-left border-end p-3 flex-shrink-0 overflow-y-auto">
+        <h5 class="fw-bold mb-2">{{ exercise()!.title }}</h5>
+        <p class="text-muted mb-3">{{ exercise()!.description }}</p>
+
+        @if (exercise()!.hint) {
+          <div class="mb-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="toggleHint()">
+              <i class="bi bi-lightbulb me-1"></i>
+              {{ hintVisible() ? 'Ocultar pista' : 'Ver pista' }}
+            </button>
+            @if (hintVisible()) {
+              <div class="alert alert-info mt-2 mb-0 py-2 small">{{ exercise()!.hint }}</div>
+            }
+          </div>
+        }
+
+        <hr class="my-3">
+        <p class="text-muted fw-semibold text-uppercase mb-2" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+          <i class="bi bi-table me-1"></i>Tablas disponibles
+        </p>
+        <app-schema-viewer [tables]="exercise()!.tables" />
+      </aside>
+
+      <!-- Right panel: editor + results -->
+      <main class="panel-right flex-grow-1 p-3 d-flex flex-column gap-3 overflow-y-auto">
+
+        <div class="flex-shrink-0">
+          <p class="text-muted fw-semibold text-uppercase mb-2" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+            <i class="bi bi-code-square me-1"></i>Tu query SQL
+          </p>
+          <div class="cm-wrapper border rounded">
+            <app-sql-editor [readonly]="loading()" (queryChange)="onQueryChange($event)" />
+          </div>
+          <div class="mt-2">
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="loading() || !userQuery().trim()"
+              (click)="submit()">
+              @if (loading()) {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+              } @else {
+                <i class="bi bi-play-fill me-1"></i>
+              }
+              Ejecutar query
+            </button>
+          </div>
+        </div>
+
+        @if (evaluationResult()) {
+          <div class="flex-shrink-0">
+
+            <!-- Feedback banner -->
+            <div
+              class="alert d-flex align-items-start gap-2 mb-3"
+              [class.alert-success]="evaluationResult()!.correct"
+              [class.alert-danger]="!evaluationResult()!.correct">
+              <i
+                class="bi fs-5 flex-shrink-0"
+                [class.bi-check-circle-fill]="evaluationResult()!.correct"
+                [class.bi-x-circle-fill]="!evaluationResult()!.correct"></i>
+              <span>{{ evaluationResult()!.feedback }}</span>
+            </div>
+
+            <!-- SQL execution error -->
+            @if (evaluationResult()!.executionError) {
+              <div class="mb-3">
+                <small class="text-muted fw-semibold text-uppercase d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                  Error SQL
+                </small>
+                <pre class="schema-code bg-danger bg-opacity-10 border border-danger rounded p-2 text-danger">{{ evaluationResult()!.executionError }}</pre>
+              </div>
+            }
+
+            <!-- User result table -->
+            @if (evaluationResult()!.userResult) {
+              <div class="mb-3">
+                <small class="text-muted fw-semibold text-uppercase d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                  Tu resultado
+                </small>
+                <app-result-table [data]="evaluationResult()!.userResult" />
+              </div>
+            }
+
+            <!-- Expected result table (only when wrong and no syntax error) -->
+            @if (!evaluationResult()!.correct && !evaluationResult()!.executionError && evaluationResult()!.expectedResult) {
+              <div class="mb-3">
+                <small class="text-muted fw-semibold text-uppercase d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                  Resultado esperado
+                </small>
+                <app-result-table [data]="evaluationResult()!.expectedResult" />
+              </div>
+            }
+
+            <button type="button" class="btn btn-outline-primary btn-sm" (click)="nextExercise()">
+              <i class="bi bi-arrow-right-circle me-1"></i>Siguiente ejercicio
+            </button>
+          </div>
+        }
+      </main>
+
+    </div>
+  }
+
+</div>

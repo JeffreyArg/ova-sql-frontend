@@ -1,0 +1,23 @@
+@if (sortedTables().length > 0) {
+  <ul class="nav nav-tabs mb-2">
+    @for (table of sortedTables(); track table.id; let i = $index) {
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link"
+          [class.active]="activeTab() === i"
+          (click)="selectTab(i)">
+          <i class="bi bi-table me-1"></i>{{ table.tableName }}
+        </button>
+      </li>
+    }
+  </ul>
+
+  @let active = sortedTables()[activeTab()];
+  <div>
+    <small class="text-muted fw-semibold text-uppercase d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">Estructura</small>
+    <pre class="schema-code bg-body-secondary rounded p-2">{{ active.createStatement }}</pre>
+    <small class="text-muted fw-semibold text-uppercase d-block mb-1 mt-2" style="font-size: 0.7rem; letter-spacing: 0.05em;">Datos de ejemplo</small>
+    <pre class="schema-code bg-body-secondary rounded p-2">{{ active.insertStatement }}</pre>
+  </div>
+}
