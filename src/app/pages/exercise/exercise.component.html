@@ -30,6 +30,20 @@
     </div>
   }
 
+  @if (loadError() && !exercise()) {
+    <div class="flex-grow-1 d-flex align-items-center justify-content-center p-4">
+      <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+        <div>
+          {{ loadError() }}
+          <button type="button" class="btn btn-sm btn-outline-danger ms-3" (click)="loadExercise()">
+            Reintentar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
   <!-- Split layout -->
   @if (exercise()) {
     <div class="d-flex flex-grow-1 overflow-hidden flex-column flex-md-row">

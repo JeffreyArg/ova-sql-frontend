@@ -25,6 +25,7 @@ export class ExerciseComponent implements OnInit {
 
   exercise = signal<Exercise | null>(null);
   loading = signal(false);
+  loadError = signal<string | null>(null);
   userQuery = signal('');
   evaluationResult = signal<EvaluationResult | null>(null);
   hintVisible = signal(false);
@@ -40,18 +41,23 @@ export class ExerciseComponent implements OnInit {
     this.loadExercise();
   }
 
-  private loadExercise(): void {
+  protected loadExercise(): void {
     this.loading.set(true);
+    this.loadError.set(null);
     this.evaluationResult.set(null);
     this.userQuery.set('');
     this.hintVisible.set(false);
     this.sqlEditor?.clear();
+    this.exercise.set(null);
     this.exerciseService.getRandom(this.difficulty()).subscribe({
       next: ex => {
         this.exercise.set(ex);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        this.loadError.set('Error al cargar el ejercicio. Intenta de nuevo.');
+        this.loading.set(false);
+      },
     });
   }
 
@@ -67,7 +73,16 @@ export class ExerciseComponent implements OnInit {
         this.evaluationResult.set(result);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        this.evaluationResult.set({
+          correct: false,
+          feedback: 'Error al evaluar tu query. Verifica que el backend esté activo.',
+          userResult: null,
+          expectedResult: null,
+          executionError: 'No se pudo conectar con el servidor.',
+        });
+        this.loading.set(false);
+      },
     });
   }
 
