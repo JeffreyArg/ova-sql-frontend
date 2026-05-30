@@ -9,7 +9,7 @@ import {
   input,
   output,
 } from '@angular/core';
-import { EditorState } from '@codemirror/state';
+import { Compartment, EditorState } from '@codemirror/state';
 import { EditorView, basicSetup } from 'codemirror';
 import { sql } from '@codemirror/lang-sql';
 import { oneDark } from '@codemirror/theme-one-dark';
@@ -30,12 +30,22 @@ export class SqlEditorComponent implements AfterViewInit, OnDestroy {
   private themeService = inject(ThemeService);
   private view: EditorView | null = null;
   private initialized = false;
+  private readonly editableCompartment = new Compartment();
 
   constructor() {
     effect(() => {
       const theme = this.themeService.theme();
       if (this.initialized) {
         this.rebuildEditor(theme);
+      }
+    });
+
+    effect(() => {
+      const readonly = this.readonly();
+      if (this.view) {
+        this.view.dispatch({
+          effects: this.editableCompartment.reconfigure(EditorView.editable.of(!readonly)),
+        });
       }
     });
   }
@@ -54,7 +64,7 @@ export class SqlEditorComponent implements AfterViewInit, OnDestroy {
           this.queryChange.emit(update.state.doc.toString());
         }
       }),
-      EditorView.editable.of(!this.readonly()),
+      this.editableCompartment.of(EditorView.editable.of(!this.readonly())),
     ];
     if (theme === 'dark') extensions.push(oneDark);
 
