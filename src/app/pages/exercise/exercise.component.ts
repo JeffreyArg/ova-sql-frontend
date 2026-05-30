@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Exercise, EvaluationResult } from '../../core/models/exercise.model';
@@ -16,6 +16,8 @@ import { SchemaViewerComponent } from '../../shared/components/schema-viewer/sch
   styleUrl: './exercise.component.css',
 })
 export class ExerciseComponent implements OnInit {
+  @ViewChild(SqlEditorComponent) private sqlEditor?: SqlEditorComponent;
+
   private location = inject(Location);
   private router = inject(Router);
   private exerciseService = inject(ExerciseService);
@@ -43,6 +45,7 @@ export class ExerciseComponent implements OnInit {
     this.evaluationResult.set(null);
     this.userQuery.set('');
     this.hintVisible.set(false);
+    this.sqlEditor?.clear();
     this.exerciseService.getRandom(this.difficulty()).subscribe({
       next: ex => {
         this.exercise.set(ex);
