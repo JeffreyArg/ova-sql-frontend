@@ -21,10 +21,11 @@ Frontend Angular 21 para un OVA (Objeto Virtual de Aprendizaje) de SQL. El usuar
 
 - Angular 21 standalone components + signals
 - Angular Router (2 rutas)
+- **Bootstrap 5** para layout, componentes y theming (instalar via npm)
 - CodeMirror 6 con `@codemirror/lang-sql` para el editor
 - `provideHttpClient` para llamadas HTTP
-- CSS puro con custom properties para theming (sin librería UI)
-- Fuentes: `Inter` (UI) + `JetBrains Mono` (editor/código)
+- CSS custom mínimo solo para lo que Bootstrap no cubre (split panel height, CodeMirror wrapper, schema code blocks)
+- Fuentes: sistema Bootstrap (`Inter`-compatible) + `monospace` para código SQL
 
 ### Rutas
 
@@ -228,48 +229,62 @@ interface EvaluationResult {
 
 ## Theming
 
-### CSS Custom Properties
+### Bootstrap dark mode
 
-```css
-/* light (default) */
-:root {
-  --bg-primary: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-editor: #f1f5f9;
-  --text-primary: #0f172a;
-  --text-muted: #64748b;
-  --accent: #6366f1;
-  --success: #22c55e;
-  --error: #ef4444;
-  --border: #e2e8f0;
-}
+Bootstrap 5 gestiona el tema via atributo en el elemento raíz:
 
-/* dark */
-[data-theme="dark"] {
-  --bg-primary: #0f172a;
-  --bg-surface: #1e293b;
-  --bg-editor: #0d1117;
-  --text-primary: #f1f5f9;
-  --text-muted: #94a3b8;
-  --accent: #818cf8;
-  --border: #334155;
-}
+```html
+<!-- light --> <html data-bs-theme="light">
+<!-- dark  --> <html data-bs-theme="dark">
 ```
 
-### Convenciones visuales
+`ThemeService` alterna entre ambos valores en lugar de un `data-theme` custom. No se necesitan custom properties propias para colores de superficie, texto o bordes — Bootstrap los provee automáticamente.
 
-- Bordes redondeados: `8px` (cards), `12px` (paneles)
-- Cards de dificultad: borde izquierdo `4px solid` con color del nivel + hover con `box-shadow` sutil
-- Feedback banner: fondo suave (`success/10%` o `error/10%`), ícono grande, texto del campo `feedback` del API
-- Editor CodeMirror: tema `@codemirror/theme-one-dark` en dark, estilos base de CodeMirror (sin paquete extra) en light
-- Bloques de código SQL en SchemaViewer: `<pre>` con `--bg-editor`, fuente monospace, scroll horizontal
+### CSS custom (solo lo que Bootstrap no cubre)
+
+```css
+/* split panel altura completa */
+.exercise-layout { height: calc(100vh - 56px); }
+.panel-left, .panel-right { overflow-y: auto; }
+
+/* CodeMirror wrapper */
+.cm-wrapper { border-radius: 0.375rem; overflow: hidden; }
+
+/* schema code blocks */
+.schema-code { font-size: 0.8rem; white-space: pre; overflow-x: auto; }
+```
+
+### Convenciones Bootstrap utilizadas
+
+- Layout: `container-fluid`, `row`, `col-*`, `d-flex`, `gap-*`
+- Cards de dificultad: `card` + `border-start border-4` con `border-success/warning/danger` + `card-hover` via utilidad `shadow-sm` en hover
+- Badges de dificultad: `badge bg-success / bg-warning / bg-danger`
+- Botones: `btn btn-primary`, `btn btn-outline-secondary`, `btn btn-success`
+- Feedback: `alert alert-success` / `alert alert-danger` con ícono Bootstrap Icons
+- Tablas de resultado: `table table-bordered table-sm table-responsive`
+- Tabs de esquemas: `nav nav-tabs` + `tab-content`
+- Hint colapsable: `collapse` de Bootstrap
+- Toggle de tema: `btn btn-outline-secondary` con ícono sol/luna (Bootstrap Icons)
 
 ---
 
 ## Dependencies to Install
 
 ```bash
+npm install bootstrap bootstrap-icons
 npm install @codemirror/view @codemirror/state @codemirror/lang-sql @codemirror/theme-one-dark
+```
+
+Bootstrap y Bootstrap Icons se importan en `angular.json` (styles array):
+```json
+"styles": [
+  "node_modules/bootstrap/dist/css/bootstrap.min.css",
+  "node_modules/bootstrap-icons/font/bootstrap-icons.css",
+  "src/styles.css"
+],
+"scripts": [
+  "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+]
 ```
 
 ---
