@@ -1,0 +1,24 @@
+@if (data()) {
+  <div class="table-responsive">
+    <table class="table table-bordered table-sm table-hover mb-0">
+      <thead class="table-dark">
+        <tr>
+          @for (col of data()!.columns; track col) {
+            <th>{{ col }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of data()!.rows; track $index) {
+          <tr>
+            @for (cell of row; track $index) {
+              <td>{{ cell }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+} @else {
+  <p class="text-muted small mb-0">Sin resultados.</p>
+}

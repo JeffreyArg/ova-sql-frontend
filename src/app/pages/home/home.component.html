@@ -1,0 +1,47 @@
+<div class="min-vh-100 d-flex flex-column">
+  <nav class="navbar border-bottom px-4">
+    <span class="navbar-brand fw-bold fs-5">
+      <i class="bi bi-database-fill-gear me-2 text-primary"></i>SQL OVA
+    </span>
+    <div class="ms-auto">
+      <button class="btn btn-outline-secondary btn-sm" (click)="themeService.toggle()">
+        <i
+          class="bi"
+          [class.bi-sun-fill]="themeService.theme() === 'dark'"
+          [class.bi-moon-fill]="themeService.theme() === 'light'"></i>
+      </button>
+    </div>
+  </nav>
+
+  <main class="flex-grow-1 d-flex flex-column align-items-center justify-content-center px-3 py-5">
+    <div class="text-center mb-5">
+      <h1 class="fw-bold mb-2">Practica SQL</h1>
+      <p class="text-muted fs-5 mb-0">Selecciona una dificultad para comenzar</p>
+    </div>
+
+    <div class="row g-4 w-100" style="max-width: 860px;">
+      @for (d of difficulties; track d.key) {
+        <div class="col-12 col-md-4">
+          <div
+            class="card h-100 border-start border-4 shadow-sm"
+            [class]="d.borderClass"
+            data-testid="difficulty-card"
+            [attr.data-key]="d.key"
+            style="cursor: pointer; transition: box-shadow 0.2s;"
+            (click)="start(d.key)"
+            (keydown.enter)="start(d.key)"
+            (mouseenter)="onCardHover($event, true)"
+            (mouseleave)="onCardHover($event, false)"
+            tabindex="0"
+            role="button">
+            <div class="card-body d-flex flex-column gap-2 p-4">
+              <i class="bi fs-2" [class]="d.icon + ' ' + d.colorClass"></i>
+              <h5 class="card-title fw-bold mb-0" [class]="d.colorClass">{{ d.label }}</h5>
+              <p class="card-text text-muted small mb-0">{{ d.description }}</p>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+</div>
